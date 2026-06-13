@@ -5,7 +5,6 @@ const STATIC_ASSETS = [
   '/manifest.json',
   '/icon-192.png',
   '/icon-512.png',
-  'https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&display=swap'
 ];
 
 // Install: cache static assets
