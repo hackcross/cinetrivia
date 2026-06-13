@@ -1,21 +1,9 @@
 const CACHE_NAME = 'cinetrivia-v1';
-const STATIC_ASSETS = [
-  '/',
-  '/index.html',
-  '/manifest.json',
-  '/icon-192.png',
-  '/icon-512.png',
-];
-
-// Install: cache static assets
+ 
 self.addEventListener('install', e => {
-  e.waitUntil(
-    caches.open(CACHE_NAME).then(cache => cache.addAll(STATIC_ASSETS))
-  );
   self.skipWaiting();
 });
-
-// Activate: clean old caches
+ 
 self.addEventListener('activate', e => {
   e.waitUntil(
     caches.keys().then(keys =>
@@ -24,30 +12,19 @@ self.addEventListener('activate', e => {
   );
   self.clients.claim();
 });
-
-// Fetch: cache-first for images, network-first for others
+ 
 self.addEventListener('fetch', e => {
-  const url = new URL(e.request.url);
-
-  // TMDB images: cache-first (once loaded, always available offline)
-  if (url.hostname === 'image.tmdb.org') {
-    e.respondWith(
-      caches.match(e.request).then(cached => {
-        if (cached) return cached;
-        return fetch(e.request).then(response => {
-          if (response.ok) {
-            const clone = response.clone();
-            caches.open(CACHE_NAME).then(cache => cache.put(e.request, clone));
-          }
-          return response;
-        }).catch(() => new Response('', { status: 404 }));
-      })
-    );
-    return;
-  }
-
-  // Static assets: cache-first
   e.respondWith(
-    caches.match(e.request).then(cached => cached || fetch(e.request))
+    caches.match(e.request).then(cached => {
+      if (cached) return cached;
+      return fetch(e.request).then(response => {
+        if (response.ok && (e.request.url.includes('image.tmdb.org') || e.request.url.includes('index.html') || e.request.url.includes('icon-'))) {
+          const clone = response.clone();
+          caches.open(CACHE_NAME).then(cache => cache.put(e.request, clone));
+        }
+        return response;
+      }).catch(() => cached || new Response('Offline', { status: 503 }));
+    })
   );
 });
+ 
