@@ -1,9 +1,9 @@
-const CACHE_NAME = 'cinetrivia-v1';
- 
+const CACHE_NAME = 'cinetrivia-v2';
+
 self.addEventListener('install', e => {
   self.skipWaiting();
 });
- 
+
 self.addEventListener('activate', e => {
   e.waitUntil(
     caches.keys().then(keys =>
@@ -12,7 +12,7 @@ self.addEventListener('activate', e => {
   );
   self.clients.claim();
 });
- 
+
 self.addEventListener('fetch', e => {
   e.respondWith(
     caches.match(e.request).then(cached => {
@@ -27,4 +27,3 @@ self.addEventListener('fetch', e => {
     })
   );
 });
- 
